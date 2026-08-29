@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ColorInfo } from "../lib/color";
-import { RawDOMContainer } from "../../../../external/ui/src/RawDOMContainer";
+import { RawDOMContainer } from "../../../../src/components/tools-ui/RawDOMContainer";
 import { ColorPaletteControls } from "./ColorPaletteControls";
 import {
 	type ColorRangePresetName,
