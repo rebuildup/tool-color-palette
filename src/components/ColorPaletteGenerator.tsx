@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ColorInfo } from "../lib/color";
-import { RawDOMContainer } from "../../../../external/ui/src/RawDOMContainer";
 import { ColorPaletteControls } from "./ColorPaletteControls";
 import {
 	type ColorRangePresetName,
@@ -14,6 +13,7 @@ import { generatePaletteColors } from "./color-palette-utils";
 import { GeneratedPalette } from "./GeneratedPalette";
 import { PaletteActions } from "./PaletteActions";
 import { PaletteExport } from "./PaletteExport";
+import { RawDOMContainer } from "./RawDOMContainer";
 import { SavedPalettes } from "./SavedPalettes";
 
 export default function ColorPaletteGenerator() {

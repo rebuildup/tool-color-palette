@@ -1,0 +1,6 @@
+{
+	"$schema": "https://unpkg.com/knip@6.33.0/schema.json",
+	"project": ["src/**/*.{ts,tsx}"],
+	"ignoreDependencies": ["react-dom", "@types/react-dom"],
+	"ignoreExportsUsedInFile": true
+}

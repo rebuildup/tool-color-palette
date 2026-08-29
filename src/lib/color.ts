@@ -182,73 +182,6 @@ export function rgbToHsl(r: number, g: number, b: number): HSLColor {
 	};
 }
 
-function _hslToRgb(h: number, s: number, l: number): RGBColor {
-	h /= 360;
-	s /= 100;
-	l /= 100;
-
-	const hue2rgb = (p: number, q: number, t: number) => {
-		if (t < 0) t += 1;
-		if (t > 1) t -= 1;
-		if (t < 1 / 6) return p + (q - p) * 6 * t;
-		if (t < 1 / 2) return q;
-		if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-		return p;
-	};
-
-	let r: number, g: number, b: number;
-
-	if (s === 0) {
-		r = g = b = l; // achromatic
-	} else {
-		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		const p = 2 * l - q;
-		r = hue2rgb(p, q, h + 1 / 3);
-		g = hue2rgb(p, q, h);
-		b = hue2rgb(p, q, h - 1 / 3);
-	}
-
-	return {
-		r: Math.round(r * 255),
-		g: Math.round(g * 255),
-		b: Math.round(b * 255),
-	};
-}
-
-function _rgbToLab(r: number, g: number, b: number): LABColor {
-	// Convert RGB to XYZ
-	let x = r / 255;
-	let y = g / 255;
-	let z = b / 255;
-
-	x = x > 0.04045 ? ((x + 0.055) / 1.055) ** 2.4 : x / 12.92;
-	y = y > 0.04045 ? ((y + 0.055) / 1.055) ** 2.4 : y / 12.92;
-	z = z > 0.04045 ? ((z + 0.055) / 1.055) ** 2.4 : z / 12.92;
-
-	const xTemp = x * 0.4124 + y * 0.3576 + z * 0.1805;
-	const yTemp = x * 0.2126 + y * 0.7152 + z * 0.0722;
-	const zTemp = x * 0.0193 + y * 0.1192 + z * 0.9505;
-
-	x = xTemp;
-	y = yTemp;
-	z = zTemp;
-
-	// Convert XYZ to LAB
-	x = x / 0.95047;
-	y = y / 1.0;
-	z = z / 1.08883;
-
-	x = x > 0.008856 ? x ** (1 / 3) : 7.787 * x + 16 / 116;
-	y = y > 0.008856 ? y ** (1 / 3) : 7.787 * y + 16 / 116;
-	z = z > 0.008856 ? z ** (1 / 3) : 7.787 * z + 16 / 116;
-
-	return {
-		l: 116 * y - 16,
-		a: 500 * (x - y),
-		b: 200 * (y - z),
-	};
-}
-
 export function rgbToHex(r: number, g: number, b: number): string {
 	return (
 		"#" +
@@ -261,23 +194,15 @@ export function rgbToHex(r: number, g: number, b: number): string {
 	);
 }
 
-function _hexToRgb(hex: string): RGBColor | null {
-	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result
-		? {
-				r: parseInt(result[1], 16),
-				g: parseInt(result[2], 16),
-				b: parseInt(result[3], 16),
-			}
-		: null;
-}
-
 // Accessibility functions
 export function getLuminance(rgb: RGBColor): number {
-	const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((c) => {
-		c = c / 255;
+	const toLinear = (channel: number): number => {
+		const c = channel / 255;
 		return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-	});
+	};
+	const r = toLinear(rgb.r);
+	const g = toLinear(rgb.g);
+	const b = toLinear(rgb.b);
 	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
@@ -549,23 +474,6 @@ function labToRgb(lab: LABColor): RGBColor {
 // Utility functions
 export function randomInRange(min: number, max: number): number {
 	return Math.random() * (max - min) + min;
-}
-
-function _clampColor(
-	value: number,
-	min: number = 0,
-	max: number = 255,
-): number {
-	return Math.max(min, Math.min(max, Math.round(value)));
-}
-
-function _deltaE(lab1: LABColor, lab2: LABColor): number {
-	// Calculate Delta E (color difference) in LAB space
-	const deltaL = lab1.l - lab2.l;
-	const deltaA = lab1.a - lab2.a;
-	const deltaB = lab1.b - lab2.b;
-
-	return Math.sqrt(deltaL * deltaL + deltaA * deltaA + deltaB * deltaB);
 }
 
 export function sortColorsByHue(colors: ColorInfo[]): ColorInfo[] {

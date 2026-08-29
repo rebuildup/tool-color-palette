@@ -1,11 +1,38 @@
+# dependencies
 node_modules/
-.DS_Store
-*.log
-.env*
-!.env.example
-.vscode/
-.idea/
+
+# build outputs
 dist/
 build/
 .next/
 out/
+
+# test / coverage
+coverage/
+.tmp/
+
+# reference repos (gitignored per project policy)
+.reference/
+
+# env files (real values)
+.env
+.env.development
+.env.production
+!.env.example
+!.env.development.example
+!.env.production.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+*.swp
+
+# logs
+*.log
+
+# bun
+bun.lockb

@@ -1,19 +1,41 @@
 {
-  "name": "@rebuildup/tool-color-palette",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
-  },
-  "peerDependencies": {
-    "next": "^16.3.0"
-  },
-  "license": "MIT"
+	"name": "@rebuildup/tool-color-palette",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"coverage": "vitest run --coverage",
+		"knip": "knip",
+		"check": "bun run format:check && bun run lint && bun run typecheck && bun run knip && bun run test"
+	},
+	"dependencies": {
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8"
+	},
+	"peerDependencies": {
+		"next": "^16.3.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.11",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.5",
+		"@vitest/coverage-v8": "^4.1.11",
+		"jsdom": "^30.0.1",
+		"knip": "^6.33.0",
+		"typescript": "^7.0.2",
+		"vitest": "^4.1.11"
+	},
+	"license": "MIT"
 }
