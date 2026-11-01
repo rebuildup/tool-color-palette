@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ColorInfo } from "../lib/color";
-import { RawDOMContainer } from "../../../../src/components/tools-ui/RawDOMContainer";
+import { AppFrame } from "./AppFrame";
 import { ColorPaletteControls } from "./ColorPaletteControls";
 import {
 	type ColorRangePresetName,
@@ -81,35 +81,57 @@ export default function ColorPaletteGenerator() {
 		try {
 			await navigator.clipboard.writeText(text);
 			showNotification("コピーしました");
+			return;
 		} catch {
-			showNotification("コピー失敗");
+			// Fall through to the deprecated API: inside an opaque-origin
+			// sandbox frame the async Clipboard API is unavailable.
 		}
+
+		const textarea = document.createElement("textarea");
+		textarea.value = text;
+		textarea.setAttribute("readonly", "");
+		textarea.style.position = "fixed";
+		textarea.style.opacity = "0";
+		document.body.appendChild(textarea);
+		textarea.select();
+		let copied = false;
+		try {
+			copied = document.execCommand("copy");
+		} catch {
+			copied = false;
+		}
+		textarea.remove();
+		showNotification(copied ? "コピーしました" : "コピー失敗");
 	};
 
 	useEffect(() => {
-		const saved = localStorage.getItem("color-palettes-v2");
-		if (saved) {
-			try {
-				setSavedPalettes(JSON.parse(saved));
-			} catch (error) {
-				console.error(error);
+		// A sandboxed iframe without `allow-same-origin` has an opaque origin,
+		// where touching `localStorage` throws. Saved palettes are a
+		// convenience, so the app keeps working with in-memory state instead.
+		try {
+			const saved = localStorage.getItem("color-palettes-v2");
+			if (saved) {
+				try {
+					setSavedPalettes(JSON.parse(saved));
+				} catch (error) {
+					console.error(error);
+				}
 			}
+		} catch {
+			// Storage is unavailable (opaque origin or blocked cookies).
 		}
 	}, []);
 
 	useEffect(() => {
-		localStorage.setItem("color-palettes-v2", JSON.stringify(savedPalettes));
+		try {
+			localStorage.setItem("color-palettes-v2", JSON.stringify(savedPalettes));
+		} catch {
+			// Storage is unavailable (opaque origin or blocked cookies).
+		}
 	}, [savedPalettes]);
 
 	return (
-		<RawDOMContainer
-			title="Color Palette Generator"
-			breadcrumbs={[
-				{ label: "Home", href: "/" },
-				{ label: "Tools", href: "/tools" },
-				{ label: "Color Palette Generator" },
-			]}
-		>
+		<AppFrame title="Color Palette Generator">
 			<div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
 				<div
 					style={{
@@ -160,6 +182,6 @@ export default function ColorPaletteGenerator() {
 					/>
 				</div>
 			</div>
-		</RawDOMContainer>
+		</AppFrame>
 	);
 }
